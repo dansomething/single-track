@@ -18,5 +18,5 @@
 (defn -main
   ([] (-main "."))
   ([dir]
-   (doseq [f (filtered-file-seq (io/file dir) visible-files)]
+   (doseq [^File f (filtered-file-seq (io/file dir) visible-files)]
      (println (.getName f)))))
