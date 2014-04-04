@@ -12,8 +12,8 @@
   "A filtered tree seq on java.io.Files"
   [pred dir]
   (tree-seq
-    (fn [^File f] (. f (isDirectory)))
-    (fn [^File d] (filter pred (. d (listFiles))))
+    (fn [^File f] (.isDirectory f))
+    (fn [^File d] (filter pred (.listFiles d)))
     dir))
 
 (defn visible-file-seq [file]
