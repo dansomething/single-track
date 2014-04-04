@@ -1,6 +1,7 @@
 (ns single-track.core
   (:require [clojure.java.io :as io])
-  (:import (java.io File)))
+  (:import (java.io File))
+  (:gen-class :main true))
 
 (set! *warn-on-reflection* true)
 

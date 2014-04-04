@@ -1,0 +1,13 @@
+#!/bin/bash
+
+JAR=target/single-track.jar
+
+if [ ! -f $JAR ]; then
+	lein uberjar
+fi
+
+if hash drip 2>/dev/null; then
+	drip -jar $JAR $@
+else
+	java -jar $JAR $@
+fi
