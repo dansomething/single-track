@@ -7,4 +7,13 @@ pom.xml.asc
 *.class
 /.lein-*
 /.nrepl-port
+/music
 *.mp3
+*.wav
+*.flac
+*.aiff
+*.m4a
+*.aac
+*.ogg
+*.oga
+*.wma
