@@ -3,11 +3,11 @@
 JAR=target/single-track.jar
 
 if [ ! -f $JAR ]; then
-	lein uberjar
+  lein uberjar
 fi
 
 if hash drip 2>/dev/null; then
-	drip -jar $JAR $@
+  drip -jar $JAR $@
 else
-	java -jar $JAR $@
+  java -jar $JAR $@
 fi
