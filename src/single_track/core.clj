@@ -23,7 +23,7 @@
   (let [name (.getName file)]
     (.substring name (inc (.lastIndexOf name ".")))))
 
-(def audio-ext #{"mp3" "wav"})
+(def audio-ext #{"mp3" "wav" "m4a"})
 (defn audio? [file] (audio-ext (file-ext file)))
 (defn file? [^File file] (not (.isDirectory file)))
 
@@ -33,6 +33,6 @@
   ([] (-main "."))
   ([dir]
    (doseq [^File f (filter (all? file? audio?) (visible-file-seq (io/file dir)))]
-     (println (.getName f)))))
+     (println (.getPath f)))))
 
 #_(-main)
