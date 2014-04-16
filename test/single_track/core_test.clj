@@ -3,6 +3,19 @@
             [single-track.core :refer :all])
   (:import [java.io File]))
 
+(defn audio-header-mock [file] {:trackLength 360 :bitRate 256 :format "AAC"})
+
+(deftest metadata-test
+  (with-redefs [audio-header audio-header-mock]
+    (testing "reading audio metadata"
+      (let [md (metadata (File. "foo.m4a"))
+            header (:header md)]
+        (is (= (:trackLength header) 360))
+        (is (= (:bitRate header) 256))
+        (is (= (:format header) "AAC"))
+        (is (= (:name md) "foo.m4a"))
+        (is (= (:path md) "foo.m4a"))))))
+
 (deftest visible-files-test
   (testing "filtering hidden files"
     (are [n] (not (visible-files (File. n)))
