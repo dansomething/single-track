@@ -1,12 +1,17 @@
 (ns single-track.core-test
   (:require [clojure.test :refer :all]
             [single-track.core :refer :all])
-  (:import [java.io File]))
+  (:import (java.io File)
+           (org.jaudiotagger.audio AudioFile)))
 
-(defn audio-header-mock [file] {:trackLength 360 :bitRate 256 :format "AAC"})
+(defn audio-file-mock [file] (AudioFile.))
+(defn audio-tags-mock [audiofile] {:artist "foo"})
+(defn audio-header-mock [audiofile] {:trackLength 360 :bitRate 256 :format "AAC"})
 
 (deftest metadata-test
-  (with-redefs [audio-header audio-header-mock]
+  (with-redefs [audio-file audio-file-mock
+                audio-header audio-header-mock
+                audio-tags audio-tags-mock]
     (testing "reading audio metadata"
       (let [md (metadata (File. "foo.m4a"))
             header (:header md)]

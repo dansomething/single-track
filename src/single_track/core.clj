@@ -1,24 +1,31 @@
 (ns single-track.core
   (:require [clj-logging-config.jul :refer [set-logger-level!]]
-            [clojure.edn :as audiofileio]
             [clojure.java.io :as io]
             [clojure.pprint :refer [pprint]]
             [clojure.set :refer [rename-keys]])
   (:import (java.io File)
-           (java.util.logging Level))
+           (java.util.logging Level)
+           (org.jaudiotagger.audio AudioFileIO))
   (:gen-class :main true))
 
 (set! *warn-on-reflection* false)
 
-(defn audio-header [file]
-  (rename-keys (select-keys (bean (.getaudioheader (audiofileio/read file)))
+(defn audio-file [file]
+  (try (AudioFileIO/read file)
+       (catch Exception e nil)))
+
+(defn audio-header [audiofile]
+  (rename-keys (select-keys (bean (.getAudioHeader audiofile))
                             [:trackLength :bitRateAsNumber :format])
                {:bitRateAsNumber :bitRate}))
 
+(defn audio-tags [audiofile]
+  (bean (.getTag audiofile)))
+
 (defn metadata [file]
   (merge {:name (.getName file) :path (.getPath file)}
-         (try {:header (audio-header file)}
-              (catch Exception e {}))))
+         (when-let [af (audio-file file)]
+           {:header (audio-header af)})))
 
 (defn visible-files [^File file]
   (not= \. (-> file .getName first)))
@@ -47,7 +54,7 @@
 (defn -main
   ([] (-main "."))
   ([dir]
-   (set-logger-level! "org.jaudiotagger" Level/WARNING)
+   (set-logger-level! "org.jaudiotagger" Level/OFF)
    (doseq [^File f (filter (all? file? audio?) (visible-file-seq (io/file dir)))]
      (pprint (metadata f)))))
 
