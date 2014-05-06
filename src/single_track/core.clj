@@ -1,5 +1,6 @@
 (ns single-track.core
-  (:require [clj-logging-config.jul :refer [set-logger-level!]]
+  (:require [camel-snake-kebab :refer [->kebab-case-keyword]]
+            [clj-logging-config.jul :refer [set-logger-level!]]
             [clojure.java.io :as io]
             [clojure.pprint :refer [pprint]]
             [clojure.set :refer [rename-keys]]
@@ -21,22 +22,20 @@
                             [:trackLength :bitRateAsNumber :format])
                {:trackLength :track-length :bitRateAsNumber :bit-rate}))
 
-(defn norm-keyword [str]
-  (->> (re-seq #"[A-Z]?[a-z]+" str)
-       (join "-")
-       (lower-case)
-       (keyword)))
-
 (defn convert-longs [m & ks]
   (apply assoc m (mapcat #(vector % (try (Long/parseLong (m %)) (catch Exception e nil))) ks)))
 
 (def tags
   [FieldKey/ALBUM FieldKey/ARTIST FieldKey/TITLE FieldKey/TRACK FieldKey/ALBUM_ARTIST FieldKey/GENRE FieldKey/YEAR])
 
+(defn tag-val [tag tagname]
+  (vector (->kebab-case-keyword (.name tagname)) (.getFirst tag tagname)))
+
 (defn audio-tags [audiofile]
   (when-let [tag (.getTag audiofile)]
-    (convert-longs (into {} (map #(vector (norm-keyword (lower-case (.name %1))) (.getFirst tag %1)) tags))
-                   :year :track)))
+    (try ((convert-longs (into {} (map #(tag-val tag %1) tags))
+                         :year :track))
+         (catch Exception e {})) ))
 
 (defn metadata [file]
   (merge {:name (.getName file)
