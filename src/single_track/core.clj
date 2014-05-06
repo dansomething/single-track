@@ -29,7 +29,7 @@
   [FieldKey/ALBUM FieldKey/ARTIST FieldKey/TITLE FieldKey/TRACK FieldKey/ALBUM_ARTIST FieldKey/GENRE FieldKey/YEAR])
 
 (defn tag-val [tag tagname]
-  (vector (->kebab-case-keyword (.name tagname)) (.getFirst tag tagname)))
+  [(->kebab-case-keyword (.name tagname)) (.getFirst tag tagname)])
 
 (defn audio-tags [audiofile]
   (when-let [tag (.getTag audiofile)]
