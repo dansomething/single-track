@@ -6,20 +6,20 @@
 
 (defn audio-file-mock [file] (AudioFile.))
 (defn audio-tags-mock [audiofile] {:artist "foo"})
-(defn audio-header-mock [audiofile] {:trackLength 360 :bitRate 256 :format "AAC"})
+(defn audio-header-mock [audiofile] {:track-length 360 :bit-rate 256 :format "AAC"})
 
 (deftest metadata-test
   (with-redefs [audio-file audio-file-mock
                 audio-header audio-header-mock
                 audio-tags audio-tags-mock]
     (testing "reading audio metadata"
-      (let [md (metadata (File. "foo.m4a"))
-            header (:header md)]
-        (is (= (:trackLength header) 360))
-        (is (= (:bitRate header) 256))
-        (is (= (:format header) "AAC"))
+      (let [md (metadata (File. "foo.m4a"))]
+        (is (= (:track-length md) 360))
+        (is (= (:bit-rate md) 256))
+        (is (= (:format md) "AAC"))
         (is (= (:name md) "foo.m4a"))
-        (is (= (:path md) "foo.m4a"))))))
+        (is (= (:path md) "foo.m4a"))
+        (is (= (:artist md) "foo"))))))
 
 (deftest visible-files-test
   (testing "filtering hidden files"
