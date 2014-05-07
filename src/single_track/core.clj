@@ -3,8 +3,7 @@
             [clj-logging-config.jul :refer [set-logger-level!]]
             [clojure.java.io :as io]
             [clojure.pprint :refer [pprint]]
-            [clojure.set :refer [rename-keys]]
-            [clojure.string :refer [join lower-case]])
+            [clojure.set :refer [rename-keys]])
   (:import (java.io File)
            (java.util.logging Level)
            (org.jaudiotagger.audio AudioFileIO)
@@ -33,9 +32,9 @@
 
 (defn audio-tags [audiofile]
   (when-let [tag (.getTag audiofile)]
-    (try ((convert-longs (into {} (map #(tag-val tag %1) tags))
-                         :year :track))
-         (catch Exception e {})) ))
+    (try (convert-longs (into {} (map #(tag-val tag %1) tags))
+                        :year :track)
+         (catch UnsupportedOperationException e {}))))
 
 (defn metadata [file]
   (merge {:name (.getName file)
