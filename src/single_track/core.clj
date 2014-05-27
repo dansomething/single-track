@@ -22,10 +22,19 @@
                {:trackLength :track-length :bitRateAsNumber :bit-rate}))
 
 (defn convert-longs [m & ks]
-  (apply assoc m (mapcat #(vector % (try (Long/parseLong (m %)) (catch Exception e nil))) ks)))
+  (apply assoc m (mapcat
+                   (fn [k] (vector k (try (Long/parseLong (m k))
+                                          (catch Exception e nil))))
+                   ks)))
 
 (def tags
-  [FieldKey/ALBUM FieldKey/ARTIST FieldKey/TITLE FieldKey/TRACK FieldKey/ALBUM_ARTIST FieldKey/GENRE FieldKey/YEAR])
+  [FieldKey/ALBUM
+   FieldKey/ARTIST
+   FieldKey/TITLE
+   FieldKey/TRACK
+   FieldKey/ALBUM_ARTIST
+   FieldKey/GENRE
+   FieldKey/YEAR])
 
 (defn tag-val [tag tagname]
   [(->kebab-case-keyword (.name tagname)) (.getFirst tag tagname)])
@@ -68,11 +77,33 @@
 
 (defn all? [& fns] (fn [x] (every? #(% x) fns)))
 
+(defn filtered [dir]
+  (filter (all? file? audio?) (visible-file-seq (io/file dir))))
+
+(defn put
+  ([m k v]
+   (if-let [cv (get m k)]
+     (if (vector? cv)
+       (assoc m k (conj cv v))
+       (assoc m k (vector cv v)))
+     (assoc m k v)))
+  ([m [k v]]
+   (put m k v)))
+
+(defn put-af
+  [m {:keys [:artist :album :title] :as v}]
+  (put m [artist album title] v))
+
+(defn af-key [{:keys [:artist :album :title] :as v}]
+  [artist album title])
+
+(defn entry [v]
+  (vector (af-key v) v))
+
 (defn -main
   ([] (-main "."))
   ([dir]
    (set-logger-level! "org.jaudiotagger" Level/OFF)
-   (doseq [^File f (filter (all? file? audio?) (visible-file-seq (io/file dir)))]
-     (pprint (metadata f)))))
+   (reduce put {} (map entry (filtered dir)))))
 
 #_(-main)
