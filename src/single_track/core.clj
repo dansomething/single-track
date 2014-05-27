@@ -85,25 +85,22 @@
    (if-let [cv (get m k)]
      (if (vector? cv)
        (assoc m k (conj cv v))
-       (assoc m k (vector cv v)))
+       (assoc m k [cv v]))
      (assoc m k v)))
   ([m [k v]]
    (put m k v)))
-
-(defn put-af
-  [m {:keys [:artist :album :title] :as v}]
-  (put m [artist album title] v))
 
 (defn af-key [{:keys [:artist :album :title] :as v}]
   [artist album title])
 
 (defn entry [v]
-  (vector (af-key v) v))
+  (let [af (metadata v)]
+    [(af-key af) af]))
 
 (defn -main
   ([] (-main "."))
   ([dir]
    (set-logger-level! "org.jaudiotagger" Level/OFF)
-   (reduce put {} (map entry (filtered dir)))))
+   (pprint (reduce put {} (map entry (filtered dir))))))
 
 #_(-main)
