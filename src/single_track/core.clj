@@ -98,9 +98,26 @@
   (let [af (metadata f)]
     [(af-key af) af]))
 
+(defn dups-desc [l k1 k2]
+  (compare [(count (get l k2)) k2] [(count (get l k1)) k1]))
+
+(defn dups [l]
+  (into (sorted-map-by (partial dups-desc l))
+        (filter #(vector? (second %)) l)))
+
+(defn af-listing
+  ([dir] (af-listing dir Integer/MAX_VALUE))
+  ([dir n]
+   (reduce put {} (map af-entry (take n (filtered dir))))))
+
+(defn save [f c]
+  (with-open [w (io/writer f)]
+    (binding [*out* w] (pprint c))))
+
 (defn -main
   ([] (-main "."))
   ([dir]
-   (pprint (reduce put {} (map af-entry (filtered dir))))))
+   (let [listing (af-listing dir)]
+     (save "target/dups.edn" (dups listing)))))
 
 #_(-main)
