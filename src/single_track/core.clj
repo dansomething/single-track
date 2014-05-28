@@ -11,6 +11,7 @@
   (:gen-class :main true))
 
 (set! *warn-on-reflection* false)
+(set-logger-level! "org.jaudiotagger" Level/OFF)
 
 (defn audio-file [file]
   (try (AudioFileIO/read file)
@@ -90,17 +91,16 @@
   ([m [k v]]
    (put m k v)))
 
-(defn af-key [{:keys [:artist :album :title] :as v}]
-  [artist album title])
+(defn af-key [v]
+  ((juxt :artist :album :title) v))
 
-(defn entry [v]
-  (let [af (metadata v)]
+(defn af-entry [f]
+  (let [af (metadata f)]
     [(af-key af) af]))
 
 (defn -main
   ([] (-main "."))
   ([dir]
-   (set-logger-level! "org.jaudiotagger" Level/OFF)
-   (pprint (reduce put {} (map entry (filtered dir))))))
+   (pprint (reduce put {} (map af-entry (filtered dir))))))
 
 #_(-main)
